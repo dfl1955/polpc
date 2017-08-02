@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# This takes an argument string of the postcode in question, including the space, greps the database 
+# and returns the constituency name from the file name. 
+
+PC=$*
+unwanted_suffix=" idx.txt"
+
+file=$(grep -l "${PC}" ./idx/*)
+
+clp=${file#./idx/}; echo ${clp%$unwanted_suffix}

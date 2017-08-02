@@ -1,0 +1,27 @@
+#!/usr/bin/tclsh
+
+# this program looks for the ordinal i.e. column number of a keyword (postcode) in a .csv data file
+
+#  ./whichcolumn <datafilename> ; only tested with files without spaces in the name
+
+if { $argc > 1 } { puts "Error: Only 1 argument permited"; exit 3 }
+if { [ file exists $argv ] != 1 } { puts "Error: file $argv does not exist" ; exit 2 }
+
+#  Slurp up the post code words (pcw) file
+set pcw [open "postcode_words.txt" r] ; set pcw_data [read $pcw] ; close $pcw
+
+#  and put each word/line into a list
+foreach line [ split $pcw_data "\n" ]  { lappend ipcwords $line }
+foreach pword [ lrange $ipcwords 0 [ expr [ llength $ipcwords ] - 2 ]] { lappend pcwords $pword }
+
+foreach file $argv {
+	foreach word [exec head -1 $file ] { lappend hdrs $word } 
+	foreach pcword $pcwords {
+		if { [lsearch $hdrs $pcword ] != -1 } {
+			puts [lsearch $hdrs $pcword ]
+			exit 0
+		}
+	# if not exit 0 needs an exit 1
+	}
+    }
+

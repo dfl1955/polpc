@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# make_index  Author : Dave Levy
+
+# This program takes a file list as a list of words and then cuts the first column out of it.
+# It relies on the filessytem names, the files are in ./db/ and the extract is to be in ./idx/
+# the source files are to have the suffix postcodes.csv. 
+
+ofile_name=""
+null=""
+space=" "
+db_dir="./db/"
+index_column=1
+
+for file in $*
+do
+	if [ $file == "postcodes.csv" ];then
+		ifile_name=${ofile_name}postcodes.csv
+		ofile_name=${ofile_name}idx.txt
+		echo $ofile
+		echo $ifile
+		# make the index
+		if [ -e "./idx/${ofile_name}" ];then
+			echo ${ofile_name} already exists
+		else
+			echo makeing $ofile_name from $ifile_name
+			cat "./db/${ifile_name}" | cut -f${index_column} -d"," > "./idx/${ofile_name}"
+		fi
+		ofile_name=${null}
+	else
+		ofile_name=${ofile_name}${file#$db_dir}${space}
+	fi
+done

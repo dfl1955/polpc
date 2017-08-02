@@ -1,0 +1,15 @@
+#!/usr/bin/tclsh
+# this could do with the serach string and the file name parameterised
+# it should be possible to do this on one line
+
+if { $argc > 1 } { puts "Error: Only 1 argument permited"; exit 1 }
+lappend files $argv
+foreach file $files {
+	if {  [ file exists $file ] == 1 } {
+		foreach word [exec head -1 test1PCs.dat] { lappend hdrs $word } 
+		puts [lsearch $hdrs Postcode ]
+		} {
+		puts "Error: file $file does not exist" ; exit 2
+		}
+	}
+

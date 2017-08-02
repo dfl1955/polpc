@@ -1,0 +1,4 @@
+#!/usr/bin/tclsh
+
+puts "The prog name is \"$argv0\""
+puts "There are $argc agruments: $argv"
