@@ -2,6 +2,8 @@
  
 # check all  Author : Dave Levy
 
+# the scans need to be placed in a function file
+
 
 PNAME=$0
 PVER=1.1
@@ -12,7 +14,7 @@ space=" "
 db_dir="./db"
 idx_dir="./idx"
 index_column=1
-cfile=$1
+cfile=$1  # < -- this is a bit poor, needs amending
 
 # which files in ./db have no index
 
