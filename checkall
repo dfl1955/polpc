@@ -1,0 +1,64 @@
+#!/bin/bash
+ 
+# check all  Author : Dave Levy
+
+
+PNAME=$0
+PVER=1.1
+echo $PNAME, $PVER starts
+ofile_name=""
+null=""
+space=" "
+db_dir="./db"
+idx_dir="./idx"
+index_column=1
+cfile=$1
+
+# which files in ./db have no index
+
+declare -a db_files idx_files
+
+# which constituencies are in $db_dir
+
+name="" ; i=0
+echo Scanning database
+for file in `ls ./${db_dir}`
+do
+  	if [ $file == "postcodes.csv" ];then
+		len=${#name}
+		db_files[$i]=${name:1:${len}}
+		(( i = i + 1 ))
+		name=""
+	else
+		name="$name ${file}"
+	fi
+done
+
+# which constituencies are in ./idx
+echo Scanning indexes
+
+name="" ; i=0
+for file in `ls ./${idx_dir}`
+do
+  	if [ $file == "idx.txt" ];then
+		len=${#name}
+		idx_files[$i]=${name:1:${len}}
+		(( i = i + 1 ))
+		name=""
+	else
+		name="$name ${file}"
+	fi
+done
+
+no_idxfiles=${#idx_files[@]}
+
+i=0
+until [ $i == $no_idxfiles ]
+do
+	# inthisclp
+	qfile="${idx_dir}/${idx_files[$i]} idx.txt"
+	echo -n  "${idx_files[$i]} "
+	./inthisclp.py -q "$qfile" -c $cfile | tail -1
+	(( i = i + 1 ))
+done
+
