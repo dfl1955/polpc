@@ -6,28 +6,94 @@
 # It relies on the filessytem names, the files are in ./db/ and the extract is to be in ./idx/
 # the source files are to have the suffix postcodes.csv. 
 
+PNAME=$0
+PVER=1.1
+echo $PNAME, $PVER starts
 ofile_name=""
 null=""
 space=" "
-db_dir="./db/"
+db_dir="./db"
+idx_dir="./idx"
 index_column=1
 
-for file in $*
+# which files in ./db have no index
+
+declare -a db_files idx_files
+
+# which constituencies are in $db_dir
+
+name="" ; i=0
+echo Scanning database
+for file in `ls ./${db_dir}`
 do
-	if [ $file == "postcodes.csv" ];then
-		ifile_name=${ofile_name}postcodes.csv
-		ofile_name=${ofile_name}idx.txt
-		echo $ofile
-		echo $ifile
-		# make the index
-		if [ -e "./idx/${ofile_name}" ];then
-			echo ${ofile_name} already exists
-		else
-			echo makeing $ofile_name from $ifile_name
-			cat "./db/${ifile_name}" | cut -f${index_column} -d"," > "./idx/${ofile_name}"
-		fi
-		ofile_name=${null}
+  	if [ $file == "postcodes.csv" ];then
+		len=${#name}
+		db_files[$i]=${name:1:${len}}
+		(( i = i + 1 ))
+		name=""
 	else
-		ofile_name=${ofile_name}${file#$db_dir}${space}
+		name="$name ${file}"
 	fi
+done
+
+# which constituencies are in ./idx
+echo Scanning indexes
+
+name="" ; i=0
+for file in `ls ./${db_dir}`
+do
+  	if [ $file == "idx.txt" ];then
+		len=${#name}
+		idx_files[$i]=${name:1:${len}}
+		(( i = i + 1 ))
+		name=""
+	else
+		name="$name ${file}"
+	fi
+done
+
+# what are the missing indexes
+
+no_dbfiles=${#db_files[@]}
+j=$no_dbfiles
+i=0 ; k=0
+declare -a missing_idx
+echo Comparing lists
+until [ $i == $j ]
+do
+	iname="${db_files[$i]} idx.txt"
+	if [ -e "${idx_dir}/${iname}" ];then
+	 	:
+	else
+		missing_idx[$k]=${db_files[$i]}
+		(( k = k + 1 ))
+	fi
+	(( i = i + 1 ))
+done
+i=0
+if [ $k == 0 ]; then
+	echo all database files have an index
+	exit
+else
+	until [ $i == $k ]
+	do
+		echo ${missing_idx[$i]} constituency has no index
+		(( i = i + 1 ))
+	done
+fi
+
+# while missing_idx
+# state ifile, state ofile
+# make index
+
+echo Making indexes
+i=0
+until [ $i == $k ];
+do
+	constituency=${missing_idx[$1]}
+	echo -n making index for $constituency
+	ifile="${db_dir}/${constituency} postcodes.csv"
+	ofile="${idx_dir}/${constituency} idx.txt"
+	$( cat "${ifile}" | cut -f${index_column} -d"," > "${ofile}") && echo ... done
+	(( i = i + 1 ))
 done
